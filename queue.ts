@@ -1,25 +1,34 @@
-export default class promiseQuene {
+export default class PromiseQuene {
   private quene: (() => Promise<void>)[];
-  public add: (func: () => Promise<any>) => void;
-  public rm: () => void;
+  // public add: (func: () => Promise<any>) => void;
+  // private rm: () => void;
   constructor() {
     this.quene = [];
   }
-}
-function QueueRm() {
-  this.quene.shift();
-  if (this.quene.length > 0) {
-    this.quene[0].func().finally(() => {
-      QueueRm();
-    });
-  } else {
+
+  private rm(): void {
+    this.quene.shift();
+    if (this.quene.length > 0) {
+      this.quene[0]()
+        .then(() => {
+          this.rm();
+        })
+        .catch(() => {
+          this.rm();
+        });
+    } else {
+    }
   }
-}
-function add(func: () => Promise<void>) {
-  this.quene.push(func);
-  if (this.quene.length === 1) {
-    func().finally(() => {
-      QueueRm();
-    });
+  public add(func: () => Promise<any>): void {
+    this.quene.push(func);
+    if (this.quene.length === 1) {
+      this.quene[0]()
+        .then(() => {
+          this.rm();
+        })
+        .catch(() => {
+          this.rm();
+        });
+    }
   }
 }
